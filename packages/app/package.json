@@ -11,13 +11,20 @@
 	},
 	"dependencies": {
 		"@bargain-battle/wss": "*",
+		"@radix-ui/react-icons": "^1.3.0",
+		"@radix-ui/react-slot": "^1.0.2",
 		"@types/react-router-dom": "^5.3.3",
 		"@types/socket.io-client": "^3.0.0",
 		"axios": "^1.4.0",
+		"class-variance-authority": "^0.7.0",
+		"clsx": "^2.0.0",
+		"path": "^0.12.7",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
 		"react-router-dom": "^6.14.2",
-		"socket.io-client": "^4.7.2"
+		"socket.io-client": "^4.7.2",
+		"tailwind-merge": "^1.14.0",
+		"tailwindcss-animate": "^1.0.6"
 	},
 	"devDependencies": {
 		"@types/react": "^18.2.15",

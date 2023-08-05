@@ -1,0 +1,13 @@
+{
+	"private": true,
+	"name": "bargain-battle",
+	"version": "1.0.0",
+	"description": "Online Version Of For Sale",
+	"main": "index.js",
+	"author": "JunghoChoi",
+	"license": "ISC",
+	"scripts": {},
+	"workspaces": [
+		"packages/*"
+	]
+}

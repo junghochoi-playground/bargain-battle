@@ -19,14 +19,12 @@ const StartGame = () => {
 			host: username,
 		}
 
-		const response = await axios.post<RoomInfo>(
-			'http://localhost:8000/start-game',
-			{
-				host: username,
-			}
-		)
-
-		navigate(`/game/${response.data.roomId}`)
+		// navigate(`/game/${}`)
+		navigate('/game/hardcoded-roomid', {
+			state: {
+				name: username,
+			},
+		})
 
 		// Do some error checking here
 	}

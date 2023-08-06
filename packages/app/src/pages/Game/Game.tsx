@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { io } from 'socket.io-client'
+import { useLocation } from 'react-router-dom'
 import { Socket } from 'socket.io-client'
 
 import {
@@ -10,33 +11,37 @@ import {
 let socket: Socket<ServerToClientEvents, ClientToServerEvents>
 
 async function getSocketConnection() {
-	socket = io(process.env.NEXT_PUBLIC_WSS_URL!) // KEEP AS IS
+	socket = io(process.env.WSS_URL!) // KEEP AS IS
 }
 
-const Game: React.FC = () => {
+const Game: React.FC = (props) => {
 	let { id } = useParams()
 	const [isConnected, setIsConnected] = useState<boolean>(false)
 
+	const location = useLocation()
+
 	useEffect(() => {
-		socket.connect()
+		console.log(location.state)
+		// getSocketConnection().then()
+		// 	socket.connect()
 
-		const onConnect = () => {
-			setIsConnected(true)
-			socket.emit('UserJoin', {
-				username: 'hello',
-				socketId: 'hello',
-				roomId: 'ehllo',
-			})
-		}
-		const onDisconnect = () => setIsConnected(false)
+		// 	const onConnect = () => {f
+		// 		setIsConnected(true)
+		// 		socket.emit('UserJoin', {
+		// 			username: 'hello',
+		// 			socketId: 'hello',
+		// 			roomId: 'ehllo',
+		// 		})
+		// 	}
+		// 	const onDisconnect = () => setIsConnected(false)
 
-		socket.on('connect', () => onConnect())
-		socket.on('disconnect', () => onDisconnect())
+		// 	socket.on('connect', () => onConnect())
+		// 	socket.on('disconnect', () => onDisconnect())
 
-		return () => {
-			socket.off('connect')
-			socket.disconnect()
-		}
+		// 	return () => {
+		// 		socket.off('connect')
+		// 		socket.disconnect()
+		// 	}
 	}, [])
 
 	return (

@@ -1,6 +1,5 @@
 import { ChangeEvent, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
 
 interface RoomInfo {
 	roomId: string
@@ -58,7 +57,7 @@ const StartGame = () => {
 						className="rounded bg-green-500 px-4 py-2 font-semibold text-white hover:bg-green-600"
 						onClick={handleStartGame}
 					>
-						Hello World
+						Create Game
 					</button>
 				</div>
 			</div>

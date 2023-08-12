@@ -10,46 +10,60 @@ import {
 } from '@bargain-battle/wss/events'
 let socket: Socket<ServerToClientEvents, ClientToServerEvents>
 
+type User = {
+	username: string
+	socketId: string
+}
+
 async function getSocketConnection() {
-	socket = io(process.env.WSS_URL!) // KEEP AS IS
+	// socket = io(process.env.WSS_URL!) // KEEP AS IS
+	socket = io('http://localhost:8000')
 }
 
 const Game: React.FC = (props) => {
-	let { id } = useParams()
+	let { id: roomId } = useParams<string>()
 	const [isConnected, setIsConnected] = useState<boolean>(false)
+	const [users, setUsers] = useState<User[]>([])
 
 	const location = useLocation()
 
+	const startGameEventHandlers = () => {
+		socket.on('UserJoin', (payload) => {
+			console.log(payload)
+			const joinedUser = {
+				username: payload.username,
+				socketId: socket.id,
+			}
+			setUsers((prev) => [...prev, joinedUser])
+		})
+	}
 	useEffect(() => {
-		console.log(location.state)
-		// getSocketConnection().then()
-		// 	socket.connect()
+		console.log('useEffect')
+		getSocketConnection().then(() => {
+			startGameEventHandlers()
+			socket.on('connect', () => {
+				if (roomId) {
+					socket.emit('UserJoin', {
+						username: location.state.name as string,
+						socketId: socket.id,
+						roomId: roomId,
+					})
+				}
+			})
+		})
 
-		// 	const onConnect = () => {f
-		// 		setIsConnected(true)
-		// 		socket.emit('UserJoin', {
-		// 			username: 'hello',
-		// 			socketId: 'hello',
-		// 			roomId: 'ehllo',
-		// 		})
-		// 	}
-		// 	const onDisconnect = () => setIsConnected(false)
-
-		// 	socket.on('connect', () => onConnect())
-		// 	socket.on('disconnect', () => onDisconnect())
-
-		// 	return () => {
-		// 		socket.off('connect')
-		// 		socket.disconnect()
-		// 	}
+		return () => {}
 	}, [])
 
 	return (
 		<div>
 			<h1 className="">This is the Game Page</h1>
-			{isConnected && <h2>You are connected</h2>}
 
-			<input type="text" />
+			<ul>
+				{users.map((user) => (
+					<li key={user.socketId}>{user.username}</li>
+				))}
+			</ul>
 		</div>
 	)
 }

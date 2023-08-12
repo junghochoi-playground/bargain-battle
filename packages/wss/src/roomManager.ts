@@ -7,7 +7,7 @@ export class RoomManager {
       this.rooms = new Map();
     }
   
-    createRoom(id: string): Room {
+    private createRoom(id: string): Room {
       const room: Room = new Room(id);
       this.rooms.set(id, room);
 
@@ -20,6 +20,12 @@ export class RoomManager {
     }
   
     joinRoom(roomId: string, socketId: string, username: string): boolean {
+
+      if (!this.rooms.has(roomId)) {
+        this.createRoom(roomId);
+      }
+      
+
       const room = this.rooms.get(roomId);
       if (room) {
         room.addParticipant({username, socketId});

@@ -24,55 +24,7 @@ const io: SocketIOServer = new SocketIOServer(httpServer, {
   }
 })
 
-
-
 new Game(io)
-
-
-
-
-// const userManager = new Map<string, string>(); // socketId -> roomId
-// const roomManager: RoomManager = new RoomManager();
-
-// app.post('/start-game', (req: Request, res:Response) => {
-//   const gameRoom = uuidv4();
-//   roomManager.createRoom(gameRoom);
-  
-//   res.json({
-//     roomId: gameRoom,
-//   });  
-// })
-
-// io.on('connection', (socket: Socket) => {
-//   console.log(socket.id);
-
-//   // socket.on(SocketEvents.JOIN_GAME, (roomId:string, socketId:string, username:string) => {
-//   //   console.log('join_game')
-//   //   socket.join(roomId);
-//   //   userManager.set(socketId, roomId);
-//   //   roomManager.joinRoom(roomId, socketId, username);
-//   // });
-
-
-//   socket.on('disconnecting', () => {
-//     console.log('leave_game');
-
-//     const roomId: string|undefined = userManager.get(socket.id);
-
-//     if (roomId) {
-//       socket.leave(roomId);
-//       roomManager.leaveRoom(roomId, socket.id);
-//     }
-
-//     // console.log(roomId, socketId, username)
-//     // socket.leave(roomId);
-//     // roomManager.leaveRoom(roomId, socketId, username);
-//   });
-// })
-
-
-
-
 
 httpServer.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);

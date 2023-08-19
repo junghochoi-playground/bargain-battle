@@ -52,6 +52,18 @@ export class RoomManager {
       return false;
     }
 
+    handleUserDisconnect(socketId: SocketId): RoomId {
+      for (let [roomId, room] of this.rooms) {
+        if (room.hasParticipant(socketId)) {
+          this.leaveRoom(roomId, socketId);
+          return roomId;
+        }
+        
+      }
+      return '';
+    }
+
+
     getParticiapnts(roomId: RoomId): Participant[] {
       const room = this.rooms.get(roomId);
       if (room) {

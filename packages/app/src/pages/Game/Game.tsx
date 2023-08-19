@@ -59,7 +59,6 @@ const Game: React.FC = (props) => {
 		})
 
 		return () => {
-			console.log('UseEffect Cleanup')
 			if (roomId) {
 				socket.emit('UserLeave', {
 					username: location.state.name as string,

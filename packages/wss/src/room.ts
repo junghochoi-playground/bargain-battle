@@ -1,8 +1,5 @@
-import { Participant } from "../types";
+import { Participant, SocketId } from "../types";
 
-
-
-type SocketId = string;
 
 
 
@@ -24,7 +21,7 @@ export class Room {
     this.participants.set(user.socketId, user);
   }
 
-  removeParticipant(socketId: string): void {
+  removeParticipant(socketId: SocketId): void {
     this.participants.delete(socketId);
   }
 
@@ -33,5 +30,8 @@ export class Room {
   }
   getParticipants(): Participant[] {
     return Array.from(this.participants.values());
+  }
+  hasParticipant(socketId: SocketId): boolean {
+    return this.participants.has(socketId);
   }
  }

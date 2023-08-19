@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { io } from 'socket.io-client'
 import { useLocation } from 'react-router-dom'
 import { Socket } from 'socket.io-client'
+import invariant from '@/util/util'
 
 import {
 	ServerToClientEvents,
@@ -29,7 +30,7 @@ const Game: React.FC = (props) => {
 
 	const startGameEventHandlers = () => {
 		socket.on('UserJoin', (payload) => {
-			console.log(payload)
+			console.log('UserJoins')
 			const joinedUser = {
 				username: payload.username,
 				socketId: socket.id,
@@ -38,11 +39,11 @@ const Game: React.FC = (props) => {
 		})
 	}
 	useEffect(() => {
-		console.log('useEffect')
 		getSocketConnection().then(() => {
 			startGameEventHandlers()
 			socket.on('connect', () => {
 				if (roomId) {
+					console.log('Emittings')
 					socket.emit('UserJoin', {
 						username: location.state.name as string,
 						socketId: socket.id,
@@ -50,9 +51,26 @@ const Game: React.FC = (props) => {
 					})
 				}
 			})
+
+			socket.on('GameStateUpdate', (gameState) => {
+				console.log()
+				setUsers(gameState.raceState.participants)
+			})
 		})
 
-		return () => {}
+		return () => {
+			console.log('UseEffect Cleanup')
+			if (roomId) {
+				socket.emit('UserLeave', {
+					username: location.state.name as string,
+					socketId: socket.id,
+					roomId: roomId,
+				})
+			}
+
+			socket.off('connect')
+			socket.disconnect()
+		}
 	}, [])
 
 	return (

@@ -1,7 +1,10 @@
+import { Participant, SocketId } from '../types';
 import { Room } from './room'
 
+type RoomId = string;
+
 export class RoomManager {
-    private rooms: Map<string, Room>;
+    private rooms: Map<RoomId, Room>;
   
     constructor() {
       this.rooms = new Map();
@@ -11,7 +14,7 @@ export class RoomManager {
       const room: Room = new Room(id);
       this.rooms.set(id, room);
 
-      console.log("created room");
+      console.log(`CREATED ROOM - "${id}"`);
       return room;
     }
   
@@ -24,17 +27,20 @@ export class RoomManager {
       if (!this.rooms.has(roomId)) {
         this.createRoom(roomId);
       }
-      
+
 
       const room = this.rooms.get(roomId);
       if (room) {
-        room.addParticipant({username, socketId});
+        room.addParticipant({username, socketId, roomId});
         return true;
       }
       return false;
     }
+
+   
+
   
-    leaveRoom(roomId: string, socketId:string): boolean {
+    leaveRoom(roomId: RoomId, socketId: SocketId): boolean {
       const room = this.rooms.get(roomId);
       if (room) {
         room.removeParticipant(socketId);
@@ -45,5 +51,15 @@ export class RoomManager {
       }
       return false;
     }
-  }
+
+    getParticiapnts(roomId: RoomId): Participant[] {
+      const room = this.rooms.get(roomId);
+      if (room) {
+        return room.getParticipants();
+      }
+
+      console.log(`ROOM NOT FOUND: "${roomId}"`);
+      return []
+    }
+   }
   

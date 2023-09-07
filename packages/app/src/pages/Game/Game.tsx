@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { io } from 'socket.io-client'
 import { useLocation } from 'react-router-dom'
 import { Socket } from 'socket.io-client'
+import axios from 'axios'
 import invariant from '@/util/util'
 
 import {
@@ -18,6 +19,9 @@ type User = {
 
 async function getSocketConnection() {
 	// socket = io(process.env.WSS_URL!) // KEEP AS IS
+	const response = axios.get('http://localhost:8000/create-session', {
+		withCredentials: true,
+	})
 	socket = io('http://localhost:8000')
 }
 
@@ -43,7 +47,6 @@ const Game: React.FC = (props) => {
 			startGameEventHandlers()
 			socket.on('connect', () => {
 				if (roomId) {
-					console.log('Emittings')
 					socket.emit('UserJoin', {
 						username: location.state.name as string,
 						socketId: socket.id,

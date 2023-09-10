@@ -24,7 +24,7 @@ app.use(express.json());
 app.get('/create-session', (req, res) => {
   res.cookie('npt', uuidv4(), {
     sameSite: "none",
-    // domain: "localhost:5173", 
+    // domain: "localhost:5173",  // Adding this 
     path: '/',
     maxAge: 86400,
     secure: true,
@@ -55,7 +55,7 @@ const io: SocketIOServer = new SocketIOServer(httpServer, {
 
 
 
-// new Game(io)
+new Game(io)
 
 httpServer.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);

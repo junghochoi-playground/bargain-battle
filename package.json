@@ -6,7 +6,10 @@
 	"main": "index.js",
 	"author": "JunghoChoi",
 	"license": "ISC",
-	"scripts": {},
+	"scripts": {
+		"app": "yarn workspace @bargain-battle/app dev",
+		"wss": "yarn workspace @bargain-battle/wss dev"
+	},
 	"workspaces": [
 		"packages/*"
 	]

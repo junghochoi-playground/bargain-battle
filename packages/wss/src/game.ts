@@ -5,10 +5,7 @@ import { RoomManager } from "./roomManager";
 import { SocketId, RoomId, Participant } from "../types";
 
 export class Game {
-
-  private participants = new Map<SocketId, Participant>();
   private roomManager = new RoomManager(); 
-
 
   constructor( private server: Server<ClientToServerEvents, ServerToClientEvents>) {
     this.initialize();

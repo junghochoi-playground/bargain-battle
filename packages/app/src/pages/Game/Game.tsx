@@ -27,7 +27,7 @@ async function getSocketConnection() {
 
 const Game: React.FC = (props) => {
 	let { id: roomId } = useParams<string>()
-	const [isConnected, setIsConnected] = useState<boolean>(false)
+	// const [isConnected, setIsConnected] = useState<boolean>(false)
 	const [users, setUsers] = useState<User[]>([])
 
 	const location = useLocation()
@@ -45,8 +45,10 @@ const Game: React.FC = (props) => {
 	useEffect(() => {
 		getSocketConnection().then(() => {
 			startGameEventHandlers()
+
 			socket.on('connect', () => {
 				if (roomId) {
+					console.log('A')
 					socket.emit('UserJoin', {
 						username: location.state.name as string,
 						socketId: socket.id,
@@ -56,7 +58,7 @@ const Game: React.FC = (props) => {
 			})
 
 			socket.on('GameStateUpdate', (gameState) => {
-				console.log()
+				console.log('game state updated')
 				setUsers(gameState.raceState.participants)
 			})
 		})

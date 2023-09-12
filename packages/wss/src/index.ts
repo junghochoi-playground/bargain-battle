@@ -21,17 +21,18 @@ app.use(cors({
 })); 
 app.use(express.json());
 
-app.get('/create-session', (req, res) => {
-  res.cookie('npt', uuidv4(), {
-    sameSite: "none",
-    // domain: "localhost:5173",  // Adding this 
-    path: '/',
-    maxAge: 86400,
-    secure: true,
-    httpOnly: true,
-  });
-  res.send('hello')
-})
+// app.get('/create-session', (req, res) => {
+//   res.cookie('npt', uuidv4(), {
+//     sameSite: "none",
+//     // domain: "localhost:5173",  // Adding this 
+//     path: '/',
+//     maxAge: 86400,
+//     secure: true,
+//     // httpOnly: true,
+//   });
+//   res.sendStatus(200)
+//   // res.send('hello')
+// })
 
 const io: SocketIOServer = new SocketIOServer(httpServer, {
   cors: {

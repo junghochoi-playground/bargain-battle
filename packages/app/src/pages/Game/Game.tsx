@@ -4,7 +4,8 @@ import { io } from 'socket.io-client'
 import { useLocation } from 'react-router-dom'
 import { Socket } from 'socket.io-client'
 import axios from 'axios'
-import invariant from '@/util/util'
+import Cookies from 'js-cookie'
+// import invariant from '@/util/util'
 
 import {
 	ServerToClientEvents,
@@ -19,9 +20,22 @@ type User = {
 
 async function getSocketConnection() {
 	// socket = io(process.env.WSS_URL!) // KEEP AS IS
-	const response = axios.get('http://localhost:8000/create-session', {
-		withCredentials: true,
-	})
+
+	// if (!Cookies.get('npt')) {
+	// 	console.log('cookie not created')
+	// 	axios.get('http://localhost:8000/create-session', {
+	// 		withCredentials: true,
+	// 	})
+	// }
+
+	const sessionID = localStorage.getItem('sessionID')
+
+	// if (sessionID) {
+	// 	// this.usernameAlreadySelected = true;
+	// 	socket.auth = { sessionID }
+	// 	socket.connect()
+	// }
+
 	socket = io('http://localhost:8000')
 }
 
@@ -33,6 +47,16 @@ const Game: React.FC = (props) => {
 	const location = useLocation()
 
 	const startGameEventHandlers = () => {
+		socket.on('SessionCreate', ({ sessionID }) => {
+			console.log('session-create')
+
+			// 	// attach the session ID to the next reconnection attempts
+			// 	socket.auth = { sessionID }
+			// 	// store it in the localStorage
+			// 	localStorage.setItem('sessionID', sessionID)
+			// 	// save the ID of the user
+			// 	socket.userID = userID
+		})
 		socket.on('UserJoin', (payload) => {
 			console.log('UserJoins')
 			const joinedUser = {
@@ -45,10 +69,9 @@ const Game: React.FC = (props) => {
 	useEffect(() => {
 		getSocketConnection().then(() => {
 			startGameEventHandlers()
-
 			socket.on('connect', () => {
+				console.log('connected')
 				if (roomId) {
-					console.log('A')
 					socket.emit('UserJoin', {
 						username: location.state.name as string,
 						socketId: socket.id,
@@ -56,9 +79,7 @@ const Game: React.FC = (props) => {
 					})
 				}
 			})
-
 			socket.on('GameStateUpdate', (gameState) => {
-				console.log('game state updated')
 				setUsers(gameState.raceState.participants)
 			})
 		})

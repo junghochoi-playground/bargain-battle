@@ -25,7 +25,7 @@ const StartGame = () => {
 			},
 		})
 
-		// Do some error checking here
+		// Todo: Do some error checking here
 	}
 
 	return (

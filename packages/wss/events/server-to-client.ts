@@ -8,8 +8,13 @@ export type GameStateUpdatePayload = {
   };
 };
 
+export type SessionCreatePayload = {
+  sessionID: string
+}
+
 export interface ServerToClientEvents {
   UserJoin: (payload: UserPresencePayload) => void;
   UserLeave: (payload: UserPresencePayload) => void;
   GameStateUpdate: (payload: GameStateUpdatePayload) => void;
+  SessionCreate: (payload: SessionCreatePayload) => void; 
 }

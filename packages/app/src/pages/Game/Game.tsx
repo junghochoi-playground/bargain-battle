@@ -11,91 +11,72 @@ import {
 	ServerToClientEvents,
 	ClientToServerEvents,
 } from '@bargain-battle/wss/events'
+import { Participant } from '@bargain-battle/wss/types'
 let socket: Socket<ServerToClientEvents, ClientToServerEvents>
 
-type User = {
-	username: string
-	socketId: string
-}
-
-async function getSocketConnection() {
-	// socket = io(process.env.WSS_URL!) // KEEP AS IS
-
-	// if (!Cookies.get('npt')) {
-	// 	console.log('cookie not created')
-	// 	axios.get('http://localhost:8000/create-session', {
-	// 		withCredentials: true,
-	// 	})
-	// }
-
-	const sessionID = localStorage.getItem('sessionID')
-
-	// if (sessionID) {
-	// 	// this.usernameAlreadySelected = true;
-	// 	socket.auth = { sessionID }
-	// 	socket.connect()
-	// }
-
-	socket = io('http://localhost:8000')
-}
-
-const Game: React.FC = (props) => {
+const Game: React.FC = () => {
 	let { id: roomId } = useParams<string>()
 	// const [isConnected, setIsConnected] = useState<boolean>(false)
-	const [users, setUsers] = useState<User[]>([])
+	const [users, setUsers] = useState<Participant[]>([])
 
 	const location = useLocation()
 
 	const startGameEventHandlers = () => {
 		socket.on('SessionCreate', ({ sessionID }) => {
-			console.log('session-create')
-
-			// 	// attach the session ID to the next reconnection attempts
-			// 	socket.auth = { sessionID }
-			// 	// store it in the localStorage
-			// 	localStorage.setItem('sessionID', sessionID)
-			// 	// save the ID of the user
-			// 	socket.userID = userID
+			console.log(`SessionId: ${sessionID}`)
+			localStorage.setItem('sessionId', sessionID)
 		})
-		socket.on('UserJoin', (payload) => {
-			console.log('UserJoins')
-			const joinedUser = {
-				username: payload.username,
-				socketId: socket.id,
-			}
-			setUsers((prev) => [...prev, joinedUser])
+
+		socket.on('GameStateUpdate', (gameState) => {
+			setUsers(gameState.raceState.participants)
 		})
 	}
 	useEffect(() => {
-		getSocketConnection().then(() => {
-			startGameEventHandlers()
-			socket.on('connect', () => {
-				console.log('connected')
-				if (roomId) {
-					socket.emit('UserJoin', {
-						username: location.state.name as string,
-						socketId: socket.id,
-						roomId: roomId,
-					})
-				}
-			})
-			socket.on('GameStateUpdate', (gameState) => {
-				setUsers(gameState.raceState.participants)
-			})
-		})
+		async function getSocketConnection() {
+			// socket = io(process.env.WSS_URL!) // KEEP AS IS
 
-		return () => {
-			if (roomId) {
-				socket.emit('UserLeave', {
-					username: location.state.name as string,
-					socketId: socket.id,
-					roomId: roomId,
-				})
+			socket = io('http://localhost:8000', { autoConnect: false })
+			const sessionId = localStorage.getItem('sessionId')
+			if (sessionId) {
+				// this.usernameAlreadySelected = true;
+				socket.auth = {
+					sessionId,
+					roomId,
+					username: location.state.name,
+				}
+
+				console.log('socket auth headers set')
 			}
 
-			socket.off('connect')
-			socket.disconnect()
+			socket.connect()
 		}
+
+		getSocketConnection().then(() => {
+			startGameEventHandlers()
+
+			// socket.on('connect', () => {
+			// 	if (roomId) {
+			// 		socket.emit('UserJoin', {
+			// 			username: location.state.name as string,
+			// 			socketId: socket.id,
+			// 			roomId: roomId,
+			// 		})
+			// 	}
+			// })
+		})
+
+		// return () => {
+		// 	if (roomId) {
+		// 		socket.emit('UserLeave', {
+		// 			username: location.state.name as string,
+		// 			socketId: socket.id,
+		// 			roomId: roomId,
+		// 		})
+		// 	}
+
+		// 	socket.off('connect')
+		// 	socket.disconnect()
+		// }
 	}, [])
 
 	return (
@@ -104,7 +85,7 @@ const Game: React.FC = (props) => {
 
 			<ul>
 				{users.map((user) => (
-					<li key={user.socketId}>{user.username}</li>
+					<li key={user.id}>{user.username}</li>
 				))}
 			</ul>
 		</div>

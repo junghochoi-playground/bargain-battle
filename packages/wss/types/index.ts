@@ -1,9 +1,9 @@
-type SocketId = string;
 type RoomId = string;
+type UserId = string;
 type Participant = {
+  id: string,
   username: string,
-  socketId: string,
-  roomId: string
+  roomId?: string
 };
 
-export { SocketId, RoomId, Participant}
+export { RoomId, Participant, UserId }

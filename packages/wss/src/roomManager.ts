@@ -1,4 +1,4 @@
-import { Participant, SocketId } from '../types';
+import { Participant, UserId } from '../types';
 import { Room } from './room'
 
 type RoomId = string;
@@ -22,7 +22,7 @@ export class RoomManager {
       this.rooms.delete(id);
     }
   
-    joinRoom(roomId: string, socketId: string, username: string): boolean {
+    joinRoom(roomId: string, user: Participant): boolean {
 
       if (!this.rooms.has(roomId)) {
         this.createRoom(roomId);
@@ -31,7 +31,7 @@ export class RoomManager {
 
       const room = this.rooms.get(roomId);
       if (room) {
-        room.addParticipant({username, socketId, roomId});
+        room.addParticipant(user);
         return true;
       }
       return false;
@@ -40,10 +40,10 @@ export class RoomManager {
    
 
   
-    leaveRoom(roomId: RoomId, socketId: SocketId): boolean {
+    leaveRoom(roomId: RoomId, userId: UserId): boolean {
       const room = this.rooms.get(roomId);
       if (room) {
-        room.removeParticipant(socketId);
+        room.removeParticipant(userId);
         if (room.getParticipantCount() === 0) {
           this.deleteRoom(roomId);
         }
@@ -52,7 +52,7 @@ export class RoomManager {
       return false;
     }
 
-    handleUserDisconnect(socketId: SocketId): RoomId {
+    handleUserDisconnect(socketId: UserId): RoomId {
       for (let [roomId, room] of this.rooms) {
         if (room.hasParticipant(socketId)) {
           this.leaveRoom(roomId, socketId);

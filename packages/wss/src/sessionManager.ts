@@ -1,28 +1,28 @@
-import { UserPresencePayload } from "../events"; 
-
 type SessionID = string;
-
-
+interface SessionData {
+    userID: string,
+    connected: boolean
+}
 /* abstract */ class SessionStore {
     findSession(id: SessionID) {}
-    saveSession(id: SessionID, session: UserPresencePayload) {}
+    saveSession(id: SessionID, session: SessionData) {}
     findAllSessions() {}
   }
-  
+
 
 
 class InMemorySessionStore extends SessionStore {
-    sessions: Map<SessionID, UserPresencePayload>;
+    sessions: Map<SessionID, SessionData>;
     constructor() {
         super();
         this.sessions = new Map();
     }
 
-    findSession(id: SessionID): UserPresencePayload | undefined{
+    findSession(id: SessionID): SessionData | undefined{
         return this.sessions.get(id);
     }
 
-    saveSession(id: SessionID, session: UserPresencePayload): void {
+    saveSession(id: SessionID, session: SessionData): void {
         this.sessions.set(id, session);
     }
 

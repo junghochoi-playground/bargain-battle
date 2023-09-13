@@ -3,7 +3,8 @@ import { ClientToServerEvents, ServerToClientEvents, SocketData } from "../event
 import { Socket, type Server } from "socket.io";
 import { RoomManager } from "./roomManager";
 import { InMemorySessionStore as SessionStore } from "./sessionManager";
-import { SocketId, RoomId, Participant } from "../types";
+import { UserId, RoomId, Participant } from "../types";
+import { v4 as uuidV4 } from 'uuid';
 
 export class Game {
   private roomManager = new RoomManager(); 
@@ -15,47 +16,80 @@ export class Game {
 
 
   private initialize() {
-    // this.server.use((socket, next) => {
-    //   console.log("Session Method")
-    //   const sessionID = socket.handshake.auth.sessionID;
-    //   if (sessionID) {
-    //     // find existing session
-    //     const session = this.sessionStore.findSession(sessionID);
-    //     if (session) {
-    //       socket.data.sessionID = sessionID;
-    //       return next();
-    //     }
-    //   }
-    //   const username = socket.handshake.auth.username;
-    //   if (!username) {
-    //     console.log("error thrown")
-    //     return next(new Error("invalid username"));
-    //   }
-    //   // create new session
-    //   socket.data.sessionID = '1234'
-    //   next();
-    // })
+    this.server.use((socket, next) => {
+      const sessionId = socket.handshake.auth.sessionId
+      const username = socket.handshake.auth.username
+      const roomId = socket.handshake.auth.roomId
+
+      console.log(sessionId, username, roomId)
+
+      if (sessionId) {
+        // find existing session
+        const session = this.sessionStore.findSession(sessionId);
+        if (session) {
+          socket.data.sessionId = sessionId;
+          socket.data.userId = session.userID;
+          socket.data.roomId = roomId;
+          socket.data.username = username;
+          return next();
+        }
+      }
+
+      console.log("setting new session stuff")
+      socket.data.sessionId = uuidV4();
+      socket.data.userId = uuidV4();
+      socket.data.username = username;
+      next();
+    })
 
 
     this.server.on("connection", (socket) => {
-      console.log('connection')
+
+      /**
+       * Establish Sessions for all Web Socket Connections
+       */
+      this.sessionStore.saveSession(socket.data.sessionId, {
+        userID: socket.data.userId,
+        connected: true
+      });
       socket.emit("SessionCreate", {
-        sessionID: '1234'
+        sessionID: socket.data.sessionId
       })
-      socket.on("UserJoin", (payload) => {
-        
-        console.log(`USER_JOIN:${payload.username} - received`)
-        if (this.roomManager.joinRoom(payload.roomId, payload.socketId, payload.username)){
-          socket.join(payload.roomId);
-          this.emitGameState(payload.roomId);
-          console.log(`GAME STATE UPDATE: emitted`)
+
+      this.userJoinAndUpdateGameState(socket, socket.data.roomId, {
+        id: socket.data.userId,
+        username: socket.data.username
+      })
+    
+
+      this.createEventListeners(socket)
+      
+
+      
+    });
+  }  
+
+  private userJoinAndUpdateGameState(socket: Socket, roomId: string, user: Participant) {
+    if (this.roomManager.joinRoom(roomId, user)){
+      socket.join(roomId);
+      user.roomId = roomId;
+      this.emitGameState(roomId);
+    }
+  }
+  private createEventListeners(socket: Socket): void {
+      /**
+       * Initialize Websocket Listeners
+       */
+      socket.on("UserJoin", ({ roomId, username }) => {
+        if (this.roomManager.joinRoom(roomId, username)){
+          socket.join(roomId);
+          this.emitGameState(roomId);
         }
       });
 
       socket.on("UserLeave", (payload) => {
         socket.leave(payload.roomId);
-        socket.emit("UserLeave", payload);
-        console.log("USER_LEAVE - emitted");
+        this.emitGameState(payload.roomId);
       })
 
       socket.on("disconnecting", (reason) => {
@@ -67,8 +101,6 @@ export class Game {
       socket.onAny((event, ...args) => {
         console.log(event, args);
       });
-      
-    });
   }
 
   private emitGameState(roomId: RoomId): void {
@@ -78,6 +110,5 @@ export class Game {
         participants: this.roomManager.getParticiapnts(roomId)
       }
     })
-    console.log(`GAME STATE UPDATE: emitted`)
   }
 }

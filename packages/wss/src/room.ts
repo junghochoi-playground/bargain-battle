@@ -1,4 +1,4 @@
-import { Participant, SocketId } from "../types";
+import { Participant, UserId } from "../types";
 
 
 
@@ -6,7 +6,7 @@ import { Participant, SocketId } from "../types";
 
 export class Room {
   private id: string;
-  private participants: Map<SocketId, Participant>;
+  private participants: Map<UserId, Participant>;
 
   constructor(id: string) {
     this.id = id;
@@ -18,11 +18,11 @@ export class Room {
   }
 
   addParticipant(user: Participant): void {
-    this.participants.set(user.socketId, user);
+    this.participants.set(user.id, user);
   }
 
-  removeParticipant(socketId: SocketId): void {
-    this.participants.delete(socketId);
+  removeParticipant(userId: UserId): void {
+    this.participants.delete(userId);
   }
 
   getParticipantCount(): number {
@@ -31,7 +31,7 @@ export class Room {
   getParticipants(): Participant[] {
     return Array.from(this.participants.values());
   }
-  hasParticipant(socketId: SocketId): boolean {
-    return this.participants.has(socketId);
+  hasParticipant(userId: UserId): boolean {
+    return this.participants.has(userId);
   }
  }

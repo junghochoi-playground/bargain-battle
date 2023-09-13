@@ -1,5 +1,6 @@
 export type UserPresencePayload = {
-    username: string;
-    socketId: string; 
+
+    userId: string;
     roomId: string;
+    username: string;
   };

@@ -1,5 +1,10 @@
 interface SocketData {
-    sessionID: string,
+    sessionId: string;
+    userId: string;
+    roomId: string;
+    username: string;
+    connected: boolean;
+
 }
 
 export {  SocketData } 

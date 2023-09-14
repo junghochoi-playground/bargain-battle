@@ -1,12 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { io } from 'socket.io-client'
-import { useLocation } from 'react-router-dom'
-import { Socket } from 'socket.io-client'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import axios from 'axios'
-import Cookies from 'js-cookie'
+import { io, Socket } from 'socket.io-client'
+import UsernameSelection from './UsernameSelection'
 // import invariant from '@/util/util'
 
 import {
@@ -22,10 +17,30 @@ const Game: React.FC = () => {
 	const [users, setUsers] = useState<Participant[]>([])
 	const [currUser, setCurrUser] = useState<Participant>()
 
+	async function getSocketConnection(username: string) {
+		// socket = io(process.env.WSS_URL!) // KEEP AS IS
+		socket = io('http://localhost:8000', { autoConnect: false })
+		const sessionId = localStorage.getItem('sessionId')
+		if (sessionId) {
+			// this.usernameAlreadySelected = true;
+			socket.auth = {
+				sessionId,
+				roomId,
+				username,
+			}
+		}
+		socket.connect()
+	}
+
 	const startGameEventHandlers = () => {
-		socket.on('SessionCreate', ({ sessionID }) => {
+		socket.on('UserInitialization', ({ sessionID, userId, username }) => {
 			console.log(`SessionId: ${sessionID}`)
 			localStorage.setItem('sessionId', sessionID)
+			setCurrUser({
+				id: userId,
+				roomId,
+				username,
+			})
 		})
 
 		socket.on('GameStateUpdate', (gameState) => {
@@ -33,34 +48,19 @@ const Game: React.FC = () => {
 		})
 	}
 
-	const onUsernameChange = () => {} // Todo: Add Username handler for input changes
-	const handleUserJoinGame = () => {} // TODO: Add a handler for pressing the button
+	const handleUserJoinGame = async (username: string) => {
+		await getSocketConnection(username)
+		startGameEventHandlers()
+		console.log('joining game')
+	} // TODO: Add a handler for pressing the button
 
-	useEffect(() => {
-		if (currUser !== undefined) {
-			async function getSocketConnection() {
-				// socket = io(process.env.WSS_URL!) // KEEP AS IS
-				socket = io('http://localhost:8000', { autoConnect: false })
-				const sessionId = localStorage.getItem('sessionId')
-				if (sessionId) {
-					// this.usernameAlreadySelected = true;
-					socket.auth = {
-						sessionId,
-						roomId,
-						username: location.state.name,
-					}
-
-					console.log('socket auth headers set')
-				}
-
-				socket.connect()
-			}
-
-			getSocketConnection().then(() => {
-				startGameEventHandlers()
-			})
-		}
-	}, [currUser])
+	// useEffect(() => {
+	// 	if (currUser !== undefined) {
+	// 		getSocketConnection().then(() => {
+	// 			startGameEventHandlers()
+	// 		})
+	// 	}
+	// }, [currUser])
 
 	return (
 		<div>
@@ -76,11 +76,7 @@ const Game: React.FC = () => {
 			)}
 
 			{currUser === undefined && (
-				<>
-					<h1>username needs to be defined</h1>
-					<Input />
-					<Button>Join Game</Button>
-				</>
+				<UsernameSelection handleUserJoinGame={handleUserJoinGame} />
 			)}
 		</div>
 	)

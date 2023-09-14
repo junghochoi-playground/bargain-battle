@@ -11,10 +11,6 @@ const StartGame = () => {
 	const [username, setUsername] = useState<string>('')
 	const navigate = useNavigate()
 
-	const handleUsernameChange = (e: ChangeEvent<HTMLInputElement>) => {
-		setUsername(e.target.value)
-	}
-
 	const handleStartGame = async () => {
 		const data = {
 			host: username,

@@ -1,6 +1,6 @@
 type SessionID = string;
 interface SessionData {
-    userID: string,
+    userId: string,
     connected: boolean
 }
 /* abstract */ class SessionStore {

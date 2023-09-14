@@ -21,6 +21,8 @@ app.use(cors({
 })); 
 app.use(express.json());
 
+
+
 // app.get('/create-session', (req, res) => {
 //   res.cookie('npt', uuidv4(), {
 //     sameSite: "none",
@@ -56,7 +58,15 @@ const io: SocketIOServer = new SocketIOServer(httpServer, {
 
 
 
-new Game(io)
+const game = new Game(io)
+
+app.get('/create-room', (req, res) => {
+
+
+  const roomId = game.createRoom()
+
+  res.send({roomId})
+})
 
 httpServer.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);

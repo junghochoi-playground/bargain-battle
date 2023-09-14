@@ -3,7 +3,7 @@ type UserId = string;
 type Participant = {
   id: string,
   username: string,
-  roomId?: string
+  roomId: string
 };
 
 export { RoomId, Participant, UserId }

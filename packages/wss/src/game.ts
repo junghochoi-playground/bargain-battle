@@ -18,27 +18,23 @@ export class Game {
   private initialize() {
     this.server.use((socket, next) => {
       const sessionId = socket.handshake.auth.sessionId
-      const username = socket.handshake.auth.username
       const roomId = socket.handshake.auth.roomId
-
-      console.log(sessionId, username, roomId)
 
       if (sessionId) {
         // find existing session
         const session = this.sessionStore.findSession(sessionId);
         if (session) {
           socket.data.sessionId = sessionId;
-          socket.data.userId = session.userID;
+          socket.data.userId = session.userId;
           socket.data.roomId = roomId;
-          socket.data.username = username;
+
+          // Add a way to find User data from UserId from room manager
           return next();
         }
       }
-
-      console.log("setting new session stuff")
       socket.data.sessionId = uuidV4();
       socket.data.userId = uuidV4();
-      socket.data.username = username;
+      socket.data.roomId = roomId;
       next();
     })
 
@@ -49,25 +45,30 @@ export class Game {
        * Establish Sessions for all Web Socket Connections
        */
       this.sessionStore.saveSession(socket.data.sessionId, {
-        userID: socket.data.userId,
+        userId: socket.data.userId, 
         connected: true
       });
-      socket.emit("SessionCreate", {
-        sessionID: socket.data.sessionId
+
+      socket.emit("UserInitialization", {
+        sessionID: socket.data.sessionId,
+        userId: socket.data.userId
       })
 
-      this.userJoinAndUpdateGameState(socket, socket.data.roomId, {
-        id: socket.data.userId,
-        username: socket.data.username
-      })
-    
+      // this.userJoinAndUpdateGammeState(socket, socket.data.roomId, {
+      //   id: socket.data.userId,
+      //   username: socket.data.username
+      // })
 
       this.createEventListeners(socket)
-      
-
-      
     });
+
   }  
+
+  public createRoom(): RoomId {
+    const roomCode = uuidV4()
+    this.roomManager.createRoom(roomCode)
+    return roomCode
+  }
 
   private userJoinAndUpdateGameState(socket: Socket, roomId: string, user: Participant) {
     if (this.roomManager.joinRoom(roomId, user)){
@@ -80,10 +81,14 @@ export class Game {
       /**
        * Initialize Websocket Listeners
        */
-      socket.on("UserJoin", ({ roomId, username }) => {
-        if (this.roomManager.joinRoom(roomId, username)){
-          socket.join(roomId);
-          this.emitGameState(roomId);
+      socket.on("UserJoin", (payload) => {
+        if (this.roomManager.joinRoom(payload.roomId, {
+          username: payload.username,
+          id: payload.userId,
+          roomId: payload.roomId
+        })){
+          socket.join(payload.roomId);
+          this.emitGameState(payload.roomId);
         }
       });
 
@@ -105,10 +110,10 @@ export class Game {
 
   private emitGameState(roomId: RoomId): void {
     this.server.to(roomId).emit("GameStateUpdate", {
-      raceState: {
-        roomId: roomId,
-        participants: this.roomManager.getParticiapnts(roomId)
-      }
+    
+      roomId: roomId,
+      participants: this.roomManager.getParticiapnts(roomId)
+      
     })
   }
 }

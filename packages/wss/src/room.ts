@@ -18,6 +18,7 @@ export class Room {
   }
 
   addParticipant(user: Participant): void {
+    console.log(user)
     this.participants.set(user.id, user);
   }
 

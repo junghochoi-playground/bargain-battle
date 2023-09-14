@@ -10,14 +10,13 @@ export class RoomManager {
       this.rooms = new Map();
     }
   
-    private createRoom(id: string): Room {
+    createRoom(id: string): Room {
       const room: Room = new Room(id);
       this.rooms.set(id, room);
-
       console.log(`CREATED ROOM - "${id}"`);
       return room;
     }
-  
+
     deleteRoom(id: string): void {
       this.rooms.delete(id);
     }

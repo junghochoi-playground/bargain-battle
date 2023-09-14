@@ -45,27 +45,6 @@ const StartGame = () => {
 					<Button onClick={handleCreateRoomAndRedirect}>
 						Start Game
 					</Button>
-					{/* <label
-						htmlFor="nickname"
-						className="mb-2 block text-lg font-semibold"
-					>
-						Nickname
-					</label>
-					<input
-						type="text"
-						id="nickname"
-						value={username}
-						onChange={handleUsernameChange}
-						className=" mx-auto mb-4 block w-64 rounded border border-gray-400 px-4 py-2"
-						required
-					/>
-
-					<button
-						className="rounded bg-green-500 px-4 py-2 font-semibold text-white hover:bg-green-600"
-						onClick={handleStartGame}
-					>
-						Create Game
-					</button> */}
 				</div>
 			</div>
 		</div>

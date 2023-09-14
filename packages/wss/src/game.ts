@@ -6,6 +6,7 @@ import { InMemorySessionStore as SessionStore } from "./sessionManager";
 import { RoomId, Participant } from "../types";
 import { v4 as uuidV4 } from 'uuid';
 import { generateRoomCode, generateUserCode, generateSessionCode  } from './util/codeGenerator';
+import { RoomNotFoundError } from "../errors";
 
 export class Game {
   private roomManager = new RoomManager(); 
@@ -21,8 +22,16 @@ export class Game {
       const sessionId = socket.handshake.auth.sessionId
       const roomId = socket.handshake.auth.roomId
 
+      // Check if RoomId is valid
+      if (roomId === undefined || !this.roomManager.hasRoom(roomId)) {
+        const err = new RoomNotFoundError(`RoomId: "${roomId}" does not exist`)
+
+        console.log(err instanceof RoomNotFoundError)
+        return next(err);
+      }
+
+      // Check for a Session, If there is a session 
       if (sessionId) {
-        // find existing session
         const session = this.sessionStore.findSession(sessionId);
         if (session) {
           socket.data.sessionId = sessionId;
@@ -33,23 +42,23 @@ export class Game {
 
           const user: Participant | undefined = this.roomManager.getParticipant(roomId, session.userId);
 
-          if (typeof user !== 'undefined') {
+          if (user !== undefined) {
             socket.data.username = user.username;
           }
 
-          
           return next();
         }
       }
+
+      // If there is no Session 
       socket.data.sessionId = generateSessionCode()
       socket.data.userId = generateUserCode()
       socket.data.roomId = roomId;
-      next();
+      return next();
     })
 
 
     this.server.on("connection", (socket) => {
-
       /**
        * Establish Sessions for all Web Socket Connections
        */

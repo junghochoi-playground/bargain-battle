@@ -9,19 +9,21 @@ export class RoomManager {
     constructor() {
       this.rooms = new Map();
     }
+
   
-    createRoom(id: string): Room {
+  
+    createRoom(id: RoomId): Room {
       const room: Room = new Room(id);
       this.rooms.set(id, room);
       console.log(`CREATED ROOM - "${id}"`);
       return room;
     }
 
-    deleteRoom(id: string): void {
+    deleteRoom(id: RoomId): void {
       this.rooms.delete(id);
     }
   
-    joinRoom(roomId: string, user: Participant): boolean {
+    joinRoom(roomId: RoomId, user: Participant): boolean {
 
       if (!this.rooms.has(roomId)) {
         this.createRoom(roomId);
@@ -34,6 +36,10 @@ export class RoomManager {
         return true;
       }
       return false;
+    }
+
+    hasRoom(roomId: RoomId): boolean {
+      return this.rooms.has(roomId);
     }
 
    

@@ -8,7 +8,7 @@ export type GameStateUpdatePayload = {
 };
 
 export type UserInitializationPayload = {
-  sessionID: string,
+  sessionId: string,
   userId: string
   userData?: Participant
 }

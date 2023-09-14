@@ -34,15 +34,30 @@ const Game: React.FC = () => {
 	}
 
 	const startGameEventHandlers = () => {
-		socket.on('UserInitialization', ({ sessionID, userId }) => {
-			console.log(`SessionId: ${sessionID}`)
+		socket.on('UserInitialization', ({ sessionId, userId, userData }) => {
+			console.log(`SessionId: ${sessionId}`)
 
 			// ! ----- LOOK AT THIS TODO -------
 			// TODO: Get Userdata for this UserInitialization Payload and if it exists, set currUser
 			// TODO: Potentially remove the userId State
-
+			console.log(userData)
 			setUserId(userId)
-			localStorage.setItem('sessionId', sessionID)
+
+			if (userData) {
+				setCurrUser({
+					id: userData.id,
+					roomId: userData.roomId,
+					username: userData.username,
+				})
+
+				socket.emit('UserReconnect', {
+					userId: userData.id,
+					roomId: userData.roomId,
+					username: userData.username,
+				})
+			}
+
+			localStorage.setItem('sessionId', sessionId)
 		})
 
 		socket.on('GameStateUpdate', (gameState) => {

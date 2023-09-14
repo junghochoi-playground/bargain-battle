@@ -58,12 +58,21 @@ export class RoomManager {
           return roomId;
         }
         
-      }
+      }2
       return '';
     }
 
+    getParticipant(roomId: RoomId, userId: UserId): Participant | undefined{
+      const room = this.rooms.get(roomId);
+      if (room) {
+        return room.getParticipant(userId)
+      }
+      console.log(`ROOM NOT FOUND: "${roomId}"`);
+      return undefined;
+    }
 
-    getParticiapnts(roomId: RoomId): Participant[] {
+
+    getParticipants(roomId: RoomId): Participant[] {
       const room = this.rooms.get(roomId);
       if (room) {
         return room.getParticipants();

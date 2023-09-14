@@ -35,4 +35,8 @@ export class Room {
   hasParticipant(userId: UserId): boolean {
     return this.participants.has(userId);
   }
+  getParticipant(userId: UserId): Participant | undefined {
+    console.log(this.participants)
+    return this.participants.get(userId);
+  }
  }

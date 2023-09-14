@@ -1,10 +1,11 @@
 
-import { ClientToServerEvents, ServerToClientEvents, SocketData } from "../events";
+import { ClientToServerEvents, ServerToClientEvents, SocketData, UserInitializationPayload } from "../events";
 import { Socket, type Server } from "socket.io";
 import { RoomManager } from "./roomManager";
 import { InMemorySessionStore as SessionStore } from "./sessionManager";
 import { UserId, RoomId, Participant } from "../types";
 import { v4 as uuidV4 } from 'uuid';
+import { userInfo } from "os";
 
 export class Game {
   private roomManager = new RoomManager(); 
@@ -28,7 +29,15 @@ export class Game {
           socket.data.userId = session.userId;
           socket.data.roomId = roomId;
 
-          // Add a way to find User data from UserId from room manager
+          console.log(roomId, session.userId)
+
+          const user: Participant | undefined = this.roomManager.getParticipant(roomId, session.userId);
+
+          if (typeof user !== 'undefined') {
+            socket.data.username = user.username;
+          }
+
+          
           return next();
         }
       }
@@ -48,11 +57,29 @@ export class Game {
         userId: socket.data.userId, 
         connected: true
       });
+    
+      console.log("socket.data")
+      console.log(socket.data)
+      const userInitData: UserInitializationPayload = 
+        typeof socket.data.username !== 'undefined'
+        ? {
+            sessionId: socket.data.sessionId,
+            userId: socket.data.userId,
+            userData: {
+              id: socket.data.userId,
+              roomId: socket.data.roomId,
+              username: socket.data.username
+            }
+          }
+        : {
+            sessionId: socket.data.sessionId, 
+            userId: socket.data.userId,
+            userData: undefined
+          };
 
-      socket.emit("UserInitialization", {
-        sessionID: socket.data.sessionId,
-        userId: socket.data.userId
-      })
+
+      console.log(userInitData)
+      socket.emit("UserInitialization", userInitData)
 
       // this.userJoinAndUpdateGammeState(socket, socket.data.roomId, {
       //   id: socket.data.userId,
@@ -97,6 +124,11 @@ export class Game {
         this.emitGameState(payload.roomId);
       })
 
+      socket.on("UserReconnect", (payload) => {
+        socket.join(payload.roomId)
+        this.emitGameState(payload.roomId)
+      })
+
       socket.on("disconnecting", (reason) => {
         // console.log(`Disconnecting ${socket.id} for "${reason}"`)
         // const exitRoomId = this.roomManager.handleUserDisconnect(socket.id);
@@ -112,7 +144,7 @@ export class Game {
     this.server.to(roomId).emit("GameStateUpdate", {
     
       roomId: roomId,
-      participants: this.roomManager.getParticiapnts(roomId)
+      participants: this.roomManager. getParticipants(roomId)
       
     })
   }

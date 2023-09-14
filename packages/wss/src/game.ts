@@ -66,7 +66,7 @@ export class Game {
             sessionId: socket.data.sessionId,
             userId: socket.data.userId,
             userData: {
-              id: socket.data.userId,
+              userId: socket.data.userId,
               roomId: socket.data.roomId,
               username: socket.data.username
             }
@@ -111,7 +111,7 @@ export class Game {
       socket.on("UserJoin", (payload) => {
         if (this.roomManager.joinRoom(payload.roomId, {
           username: payload.username,
-          id: payload.userId,
+          userId: payload.userId,
           roomId: payload.roomId
         })){
           socket.join(payload.roomId);

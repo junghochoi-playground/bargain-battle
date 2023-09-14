@@ -1,7 +1,7 @@
 type RoomId = string;
 type UserId = string;
 type Participant = {
-  id: string,
+  userId: string,
   username: string,
   roomId: string
 };

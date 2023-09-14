@@ -58,7 +58,7 @@ export class RoomManager {
           return roomId;
         }
         
-      }2
+      }
       return '';
     }
 

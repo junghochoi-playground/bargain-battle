@@ -35,23 +35,17 @@ const Game: React.FC = () => {
 
 	const startGameEventHandlers = () => {
 		socket.on('UserInitialization', ({ sessionId, userId, userData }) => {
-			console.log(`SessionId: ${sessionId}`)
-
-			// ! ----- LOOK AT THIS TODO -------
-			// TODO: Get Userdata for this UserInitialization Payload and if it exists, set currUser
-			// TODO: Potentially remove the userId State
-			console.log(userData)
 			setUserId(userId)
 
 			if (userData) {
 				setCurrUser({
-					id: userData.id,
+					userId: userData.userId,
 					roomId: userData.roomId,
 					username: userData.username,
 				})
 
 				socket.emit('UserReconnect', {
-					userId: userData.id,
+					userId: userData.userId,
 					roomId: userData.roomId,
 					username: userData.username,
 				})
@@ -79,7 +73,7 @@ const Game: React.FC = () => {
 			setCurrUser({
 				username,
 				roomId,
-				id: userId,
+				userId: userId,
 			})
 		}
 	} // TODO: Add a handler for pressing the button
@@ -95,7 +89,7 @@ const Game: React.FC = () => {
 					<h1 className="">This is the Game Page</h1>
 					<ul>
 						{users.map((user) => (
-							<li key={user.id}>{user.username}</li>
+							<li key={user.userId}>{user.username}</li>
 						))}
 					</ul>
 				</>

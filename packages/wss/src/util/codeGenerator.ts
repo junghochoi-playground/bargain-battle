@@ -15,7 +15,7 @@ const generateRoomCode = () => {
 }
 
 const generateUserCode = () => {
-    return 'user' + generateCode()
+    return 'user--' + generateCode()
 }
 
 const generateSessionCode = () => {

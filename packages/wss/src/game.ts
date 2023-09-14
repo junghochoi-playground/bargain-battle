@@ -3,9 +3,9 @@ import { ClientToServerEvents, ServerToClientEvents, SocketData, UserInitializat
 import { Socket, type Server } from "socket.io";
 import { RoomManager } from "./roomManager";
 import { InMemorySessionStore as SessionStore } from "./sessionManager";
-import { UserId, RoomId, Participant } from "../types";
+import { RoomId, Participant } from "../types";
 import { v4 as uuidV4 } from 'uuid';
-import { userInfo } from "os";
+import { generateRoomCode, generateUserCode, generateSessionCode  } from './util/codeGenerator';
 
 export class Game {
   private roomManager = new RoomManager(); 
@@ -41,8 +41,8 @@ export class Game {
           return next();
         }
       }
-      socket.data.sessionId = uuidV4();
-      socket.data.userId = uuidV4();
+      socket.data.sessionId = generateSessionCode()
+      socket.data.userId = generateUserCode()
       socket.data.roomId = roomId;
       next();
     })
@@ -58,8 +58,6 @@ export class Game {
         connected: true
       });
     
-      console.log("socket.data")
-      console.log(socket.data)
       const userInitData: UserInitializationPayload = 
         typeof socket.data.username !== 'undefined'
         ? {
@@ -92,7 +90,7 @@ export class Game {
   }  
 
   public createRoom(): RoomId {
-    const roomCode = uuidV4()
+    const roomCode = generateRoomCode()
     this.roomManager.createRoom(roomCode)
     return roomCode
   }

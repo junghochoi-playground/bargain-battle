@@ -13,11 +13,13 @@ let socket: Socket<ServerToClientEvents, ClientToServerEvents>
 
 const Game: React.FC = () => {
 	let { id: roomId } = useParams<string>()
+
+	const [userId, setUserId] = useState<string>('')
 	// const [isConnected, setIsConnected] = useState<boolean>(false)
 	const [users, setUsers] = useState<Participant[]>([])
 	const [currUser, setCurrUser] = useState<Participant>()
 
-	async function getSocketConnection(username: string) {
+	async function getSocketConnection() {
 		// socket = io(process.env.WSS_URL!) // KEEP AS IS
 		socket = io('http://localhost:8000', { autoConnect: false })
 		const sessionId = localStorage.getItem('sessionId')
@@ -26,41 +28,50 @@ const Game: React.FC = () => {
 			socket.auth = {
 				sessionId,
 				roomId,
-				username,
 			}
 		}
 		socket.connect()
 	}
 
 	const startGameEventHandlers = () => {
-		socket.on('UserInitialization', ({ sessionID, userId, username }) => {
+		socket.on('UserInitialization', ({ sessionID, userId }) => {
 			console.log(`SessionId: ${sessionID}`)
+
+			// ! ----- LOOK AT THIS TODO -------
+			// TODO: Get Userdata for this UserInitialization Payload and if it exists, set currUser
+			// TODO: Potentially remove the userId State
+
+			setUserId(userId)
 			localStorage.setItem('sessionId', sessionID)
-			setCurrUser({
-				id: userId,
-				roomId,
-				username,
-			})
 		})
 
 		socket.on('GameStateUpdate', (gameState) => {
-			setUsers(gameState.raceState.participants)
+			console.log(gameState)
+			setUsers(gameState.participants)
 		})
 	}
 
 	const handleUserJoinGame = async (username: string) => {
-		await getSocketConnection(username)
-		startGameEventHandlers()
 		console.log('joining game')
+
+		if (typeof roomId === 'string') {
+			socket.emit('UserJoin', {
+				username,
+				roomId,
+				userId,
+			})
+
+			setCurrUser({
+				username,
+				roomId,
+				id: userId,
+			})
+		}
 	} // TODO: Add a handler for pressing the button
 
-	// useEffect(() => {
-	// 	if (currUser !== undefined) {
-	// 		getSocketConnection().then(() => {
-	// 			startGameEventHandlers()
-	// 		})
-	// 	}
-	// }, [currUser])
+	useEffect(() => {
+		getSocketConnection().then(() => startGameEventHandlers())
+	}, [])
 
 	return (
 		<div>

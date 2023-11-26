@@ -20,12 +20,18 @@ const Game: React.FC = () => {
 
 	async function getSocketConnection() {
 		// socket = io(process.env.WSS_URL!) // KEEP AS IS
-		socket = io('http://localhost:8000', { autoConnect: false })
-		const sessionId = localStorage.getItem('sessionId')
+		const sessionId = sessionStorage.getItem('sessionId')
+		socket = io('http://localhost:8000', { 
+			autoConnect: false,
+			auth: {
+				roomId
+			}
+		})
+		
 		if (sessionId) {
 			socket.auth = {
 				sessionId,
-				roomId,
+				...socket.auth
 			}
 		}
 
@@ -57,7 +63,7 @@ const Game: React.FC = () => {
 				})
 			}
 
-			localStorage.setItem('sessionId', sessionId)
+			sessionStorage.setItem('sessionId', sessionId)
 		})
 
 		socket.on('GameStateUpdate', (gameState) => {

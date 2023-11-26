@@ -13,7 +13,7 @@ const httpServer: HttpServer = createServer(app);
 const port: String|undefined = process.env.PORT  || '4000';
 
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: "http://127.0.0.1:5173",
   methods: ["GET"],
   credentials: true
 })); 
@@ -21,7 +21,7 @@ app.use(express.json());
 
 const io: SocketIOServer = new SocketIOServer(httpServer, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: "http://127.0.0.1:5173",
     methods: ["GET", "POST"],
     credentials: true,
   }
@@ -30,8 +30,6 @@ const io: SocketIOServer = new SocketIOServer(httpServer, {
 const game = new Game(io)
 
 app.get('/create-room', (req, res) => {
-
-
   const roomId = game.createRoom()
 
   res.send({roomId})

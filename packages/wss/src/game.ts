@@ -22,6 +22,10 @@ export class Game {
       const sessionId = socket.handshake.auth.sessionId
       const roomId = socket.handshake.auth.roomId
 
+      console.log(socket.handshake.auth)
+
+      
+
       // Check if RoomId is valid
       if (roomId === undefined || !this.roomManager.hasRoom(roomId)) {
         const err = new RoomNotFoundError(`RoomId: "${roomId}" does not exist`)
@@ -137,9 +141,11 @@ export class Game {
       })
 
       socket.on("disconnecting", (reason) => {
-        // console.log(`Disconnecting ${socket.id} for "${reason}"`)
-        // const exitRoomId = this.roomManager.handleUserDisconnect(socket.id);
-        // this.emitGameState(exitRoomId);
+        console.log(`Disconnecting ${socket.id} for "${reason}"`)
+        // const exitRoomId = socket.handshake.auth.roomId
+        console.log(socket.id)
+        const exitRoomId = this.roomManager.handleUserDisconnect(socket.id);
+        this.emitGameState(exitRoomId);
       })
 
       socket.onAny((event, ...args) => {
